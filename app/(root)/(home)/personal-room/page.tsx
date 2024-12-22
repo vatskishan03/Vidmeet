@@ -37,21 +37,26 @@ const PersonalRoom = () => {
 
   const { call } = useGetCallById(meetingId!);
 
-  const startRoom = async () => {
-    if (!client || !user) return;
+const startRoom = async () => {
+  if (!client || !user) return;
 
-    const newCall = client.call("default", meetingId!);
+  const newCall = client.call("default", meetingId!);
 
-    if (!call) {
-      await newCall.getOrCreate({
-        data: {
-          starts_at: new Date().toISOString(),
+  if (!call) {
+    await newCall.getOrCreate({
+      data: {
+        starts_at: new Date().toISOString(),
+        custom: {
+          permissions: {
+            join: 'public', // Allow public access to join the meeting
+          },
         },
-      });
-    }
+      },
+    });
+  }
 
-    router.push(`/meeting/${meetingId}?personal=true`);
-  };
+  router.push(`/meeting/${meetingId}?personal=true`);
+};
 
   const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${meetingId}?personal=true`;
 
