@@ -1,16 +1,21 @@
 "use client";
 
 import Image from "next/image";
-
 import { cn } from "@/lib/utils";
-import { Button } from "./ui/button";
-import { avatarImages } from "@/constants";
-import { useToast } from "./ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
 
 interface MeetingCardProps {
+  icon: string;
   title: string;
   date: string;
-  icon: string;
   isPreviousMeeting?: boolean;
   buttonIcon1?: string;
   buttonText?: string;
@@ -18,7 +23,7 @@ interface MeetingCardProps {
   link: string;
 }
 
-const MeetingCard = ({
+export function MeetingCard({
   icon,
   title,
   date,
@@ -27,11 +32,34 @@ const MeetingCard = ({
   handleClick,
   link,
   buttonText,
-}: MeetingCardProps) => {
+}: MeetingCardProps) {
   const { toast } = useToast();
 
   return (
-    <section className="flex min-h-[258px] w-full flex-col justify-between rounded-[14px] bg-dark-1 px-5 py-8 xl:max-w-[568px]">
+    <section className="relative flex min-h-[258px] w-full flex-col justify-between rounded-[14px] bg-dark-1 px-5 py-8 xl:max-w-[568px]">
+      {/* Three-dot menu for previous meetings */}
+      {isPreviousMeeting && (
+        <div className="absolute top-2 right-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="cursor-pointer rounded-full p-2 hover:bg-dark-2">
+              <MoreVertical size={20} className="text-white" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-dark-1 text-white">
+              <DropdownMenuItem
+                onClick={() => {
+                  toast({
+                    title: "Meeting Summary",
+                    description: "Summary feature coming soon...",
+                  });
+                }}
+              >
+                Meeting Summary
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+
       <article className="flex flex-col gap-5">
         <Image src={icon} alt="upcoming" width={28} height={28} />
         <div className="flex justify-between">
@@ -41,53 +69,29 @@ const MeetingCard = ({
           </div>
         </div>
       </article>
+
       <article className={cn("flex justify-center relative", {})}>
-        <div className="relative flex w-full max-sm:hidden">
-          {avatarImages.map((img, index) => (
-            <Image
-              key={index}
-              src={img}
-              alt="attendees"
-              width={40}
-              height={40}
-              className={cn("rounded-full", { absolute: index > 0 })}
-              style={{ top: 0, left: index * 28 }}
-            />
-          ))}
-          <div className="flex-center absolute left-[136px] size-10 rounded-full border-[5px] border-dark-3 bg-dark-4">
-            +5
-          </div>
+        {/* Example for buttons/attendees (modify as needed) */}
+        <div className="flex gap-2">
+          <Button onClick={handleClick} className="rounded bg-blue-1 px-6">
+            {buttonIcon1 && <Image src={buttonIcon1} alt="feature" width={20} height={20} />}
+            &nbsp; {buttonText}
+          </Button>
+          <Button
+            onClick={() => {
+              navigator.clipboard.writeText(link);
+              toast({
+                title: "Link Copied",
+              });
+            }}
+            className="bg-dark-4 px-6"
+          >
+            <Image src="/icons/copy.svg" alt="copy link" width={20} height={20} />
+            &nbsp; Copy Link
+          </Button>
         </div>
-        {!isPreviousMeeting && (
-          <div className="flex gap-2">
-            <Button onClick={handleClick} className="rounded bg-blue-1 px-6">
-              {buttonIcon1 && (
-                <Image src={buttonIcon1} alt="feature" width={20} height={20} />
-              )}
-              &nbsp; {buttonText}
-            </Button>
-            <Button
-              onClick={() => {
-                navigator.clipboard.writeText(link);
-                toast({
-                  title: "Link Copied",
-                });
-              }}
-              className="bg-dark-4 px-6"
-            >
-              <Image
-                src="/icons/copy.svg"
-                alt="feature"
-                width={20}
-                height={20}
-              />
-              &nbsp; Copy Link
-            </Button>
-          </div>
-        )}
       </article>
     </section>
   );
-};
-
+}
 export default MeetingCard;
