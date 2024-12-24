@@ -1,6 +1,6 @@
 "use client";
-
 import Image from "next/image";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
 
@@ -34,6 +35,28 @@ export function MeetingCard({
   buttonText,
 }: MeetingCardProps) {
   const { toast } = useToast();
+  const [summary, setSummary] = useState<string>("");
+
+  // Example function to get meeting summary
+  const getMeetingSummary = async (meetingId: string) => {
+    try {
+      const response = await fetch(`/api/summary/${meetingId}`);
+      const data = await response.json();
+      setSummary(data.summary);
+
+      toast({
+        title: "Meeting Summary",
+        description: data.summary,
+        duration: 5000,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to get meeting summary",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <section className="relative flex min-h-[258px] w-full flex-col justify-between rounded-[14px] bg-dark-1 px-5 py-8 xl:max-w-[568px]">
@@ -47,10 +70,8 @@ export function MeetingCard({
             <DropdownMenuContent className="bg-dark-1 text-white">
               <DropdownMenuItem
                 onClick={() => {
-                  toast({
-                    title: "Meeting Summary",
-                    description: "Summary feature coming soon...",
-                  });
+                  // Replace "demo-meeting-id" with actual ID
+                  getMeetingSummary("demo-meeting-id");
                 }}
               >
                 Meeting Summary
@@ -71,10 +92,11 @@ export function MeetingCard({
       </article>
 
       <article className={cn("flex justify-center relative", {})}>
-        {/* Example for buttons/attendees (modify as needed) */}
         <div className="flex gap-2">
           <Button onClick={handleClick} className="rounded bg-blue-1 px-6">
-            {buttonIcon1 && <Image src={buttonIcon1} alt="feature" width={20} height={20} />}
+            {buttonIcon1 && (
+              <Image src={buttonIcon1} alt="feature" width={20} height={20} />
+            )}
             &nbsp; {buttonText}
           </Button>
           <Button
@@ -94,4 +116,5 @@ export function MeetingCard({
     </section>
   );
 }
+
 export default MeetingCard;

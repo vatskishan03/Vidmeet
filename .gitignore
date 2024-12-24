@@ -19,7 +19,8 @@
 # misc
 .DS_Store
 *.pem
-
+transcription.txt
+indigo-syntax-445513-q4-8fc9dce9ff0d.json
 # debug
 npm-debug.log*
 yarn-debug.log*

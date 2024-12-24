@@ -1,12 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'img.clerk.com',
-      },
-    ],
+  webpack: (config, { isServer }) => {
+    // Exclude onnxruntime-node from client-side bundling
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        'onnxruntime-node': false,
+      };
+    }
+    return config;
   },
 };
 
