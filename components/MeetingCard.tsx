@@ -22,6 +22,8 @@ interface MeetingCardProps {
   buttonText?: string;
   handleClick: () => void;
   link: string;
+  meetingId: string;
+
 }
 
 export function MeetingCard({
@@ -33,26 +35,46 @@ export function MeetingCard({
   handleClick,
   link,
   buttonText,
+  meetingId // Add this prop
 }: MeetingCardProps) {
   const { toast } = useToast();
-  const [summary, setSummary] = useState<string>("");
-
-  // Example function to get meeting summary
-  const getMeetingSummary = async (meetingId: string) => {
+  
+  const getMeetingSummary = async (id: string) => {
     try {
-      const response = await fetch(`/api/summary/${meetingId}`);
+      const response = await fetch(`/api/summary/${id}`);
       const data = await response.json();
-      setSummary(data.summary);
-
+      
+      if (response.status === 404) {
+        toast({
+          title: "No Transcription Found",
+          description: "This meeting hasn't been transcribed",
+          variant: "destructive",
+        });
+        return;
+      }
+  
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+  
+      // Use proper string type annotations
+      const bulletPoints = data.summary
+        .split('.')
+        .filter((point: string) => point.trim())
+        .map((point: string) => `• ${point.trim()}`)
+        .join('\n');
+  
       toast({
         title: "Meeting Summary",
-        description: data.summary,
-        duration: 5000,
+        description: bulletPoints,
+        duration: 10000,
       });
-    } catch (error) {
+  
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to get meeting summary';
       toast({
         title: "Error",
-        description: "Failed to get meeting summary",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -70,8 +92,7 @@ export function MeetingCard({
             <DropdownMenuContent className="bg-dark-1 text-white">
               <DropdownMenuItem
                 onClick={() => {
-                  // Replace "demo-meeting-id" with actual ID
-                  getMeetingSummary("demo-meeting-id");
+                  getMeetingSummary(meetingId);
                 }}
               >
                 Meeting Summary

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { speech } from '@google-cloud/speech';
+import { SpeechClient } from '@google-cloud/speech';
 
 export async function POST(request: Request) {
   try {
@@ -10,12 +10,12 @@ export async function POST(request: Request) {
     const meetingId = formData.get('meetingId') as string;
 
     // Initialize Google Cloud Speech client
-    const speechClient = new speech.SpeechClient();
+    const speechClient = new SpeechClient(); // Use proper client initialization
 
     // Convert audio blob to Buffer
     const audioBuffer = Buffer.from(await audio.arrayBuffer());
 
-    // Transcribe audio
+    // Transcribe audio with proper types
     const [response] = await speechClient.recognize({
       audio: { content: audioBuffer },
       config: {
@@ -25,9 +25,9 @@ export async function POST(request: Request) {
       },
     });
 
-    // Save transcription
+    // Save transcription with proper type checking
     const transcription = response.results
-      ?.map(result => result.alternatives?.[0]?.transcript)
+      ?.map((result: any) => result.alternatives?.[0]?.transcript)
       .join('\n');
 
     await fs.writeFile(
