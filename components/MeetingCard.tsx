@@ -40,6 +40,15 @@ export function MeetingCard({
   const { toast } = useToast();
   
   const getMeetingSummary = async (id: string) => {
+    if (!id) {
+      toast({
+        title: "Error",
+        description: "Meeting ID not found",
+        variant: "destructive",
+      });
+      return;
+    }
+  
     try {
       const response = await fetch(`/api/summary/${id}`);
       const data = await response.json();
@@ -57,7 +66,6 @@ export function MeetingCard({
         throw new Error(data.error);
       }
   
-      // Use proper string type annotations
       const bulletPoints = data.summary
         .split('.')
         .filter((point: string) => point.trim())
@@ -79,7 +87,6 @@ export function MeetingCard({
       });
     }
   };
-
   return (
     <section className="relative flex min-h-[258px] w-full flex-col justify-between rounded-[14px] bg-dark-1 px-5 py-8 xl:max-w-[568px]">
       {/* Three-dot menu for previous meetings */}

@@ -66,16 +66,15 @@ const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings' }) => {
   return (
     <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
       {calls && calls.length > 0 ? (
-        calls.map((meeting: Call | CallRecording) => (
+        calls.map((meeting) => (
           <MeetingCard
             key={(meeting as Call).id}
-            icon={
-              type === 'ended'
-                ? '/icons/previous.svg'
-                : type === 'upcoming'
-                  ? '/icons/upcoming.svg'
-                  : '/icons/recordings.svg'
-            }
+            meetingId={(meeting as Call).id} // Make sure this is passed correctly
+            icon={type === 'ended' 
+              ? '/icons/previous.svg'
+              : type === 'upcoming'
+              ? '/icons/upcoming.svg'
+              : '/icons/recordings.svg'}
             title={
               (meeting as Call).state?.custom?.description ||
               (meeting as CallRecording).filename?.substring(0, 20) ||

@@ -3,6 +3,11 @@ import fs from 'fs/promises';
 import path from 'path';
 import { SpeechClient } from '@google-cloud/speech';
 
+// Force Node.js runtime
+export const runtime = 'nodejs';
+// Add dynamic config
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -10,7 +15,9 @@ export async function POST(request: Request) {
     const meetingId = formData.get('meetingId') as string;
 
     // Initialize Google Cloud Speech client
-    const speechClient = new SpeechClient(); // Use proper client initialization
+    const speechClient = new SpeechClient({
+      keyFilename: path.join(process.cwd(), 'indigo-syntax-445513-q4-8fc9dce9ff0d.json')
+    });
 
     // Convert audio blob to Buffer
     const audioBuffer = Buffer.from(await audio.arrayBuffer());
@@ -27,11 +34,15 @@ export async function POST(request: Request) {
 
     // Save transcription with proper type checking
     const transcription = response.results
-      ?.map((result: any) => result.alternatives?.[0]?.transcript)
+      ?.map((result) => result.alternatives?.[0]?.transcript)
       .join('\n');
 
+    // Ensure transcriptions directory exists
+    const transcriptionsDir = path.join(process.cwd(), 'transcriptions');
+    await fs.mkdir(transcriptionsDir, { recursive: true });
+
     await fs.writeFile(
-      path.join(process.cwd(), `transcriptions/${meetingId}.txt`),
+      path.join(transcriptionsDir, `${meetingId}.txt`),
       transcription || ''
     );
 
