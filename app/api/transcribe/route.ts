@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { Storage } from '@google-cloud/storage';
 import { SpeechClient } from '@google-cloud/speech';
 
 // Force Node.js runtime
@@ -14,27 +15,46 @@ export async function POST(request: Request) {
     const audio = formData.get('audio') as Blob;
     const meetingId = formData.get('meetingId') as string;
 
-    // Initialize Google Cloud Speech client
+    // Initialize Google Cloud clients
     const speechClient = new SpeechClient({
-      keyFilename: path.join(process.cwd(), 'indigo-syntax-445513-q4-8fc9dce9ff0d.json')
+      keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
+    });
+    
+    const storage = new Storage({
+      keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
     });
 
-    // Convert audio blob to Buffer
-    const audioBuffer = Buffer.from(await audio.arrayBuffer());
+    const bucketName = process.env.BUCKET_NAME || 'default-bucket';
+ 
+    const bucket = storage.bucket(bucketName);
+    const fileName = `${meetingId}-${Date.now()}.wav`;
+    const file = bucket.file(fileName);
 
-    // Transcribe audio with proper types
-    const [response] = await speechClient.recognize({
-      audio: { content: audioBuffer },
+    // Upload audio to GCS
+    const audioBuffer = Buffer.from(await audio.arrayBuffer());
+    await file.save(audioBuffer);
+
+    // Get GCS URI
+    const gcsUri = `gs://${bucketName}/${fileName}`;
+
+    // Start transcription with GCS URI
+    const [operation] = await speechClient.longRunningRecognize({
+      audio: { uri: gcsUri },
       config: {
-        encoding: 'LINEAR16',
-        sampleRateHertz: 16000,
         languageCode: 'en-US',
+        enableAutomaticPunctuation: true,
       },
     });
 
-    // Save transcription with proper type checking
+    // Wait for operation to complete
+    const [response] = await operation.promise();
+
+    // Delete the file from GCS after transcription
+    await file.delete();
+
+    // Save transcription
     const transcription = response.results
-      ?.map((result) => result.alternatives?.[0]?.transcript)
+      ?.map((result: any) => result.alternatives?.[0]?.transcript)
       .join('\n');
 
     // Ensure transcriptions directory exists

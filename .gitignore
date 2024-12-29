@@ -1,41 +1,30 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
 
-# testing
-/coverage
+# Environment variables
+.env
+.env.*
+!.env.example
 
-# next.js
+# Google Cloud credentials
+*credentials*.json
+*-syntax-*.json
+*.json.key
+google-cloud*.json
+service-account*.json
+
+# Transcription files
+/transcriptions/
+*.txt
+
+# Build outputs
 /.next/
 /out/
-
-# production
 /build
 
-# misc
+# System files
 .DS_Store
 *.pem
-transcription.txt
-indigo-syntax-445513-q4-8fc9dce9ff0d.json
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# local env files
-.env*.local
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-
-.vscode
-
-.env
