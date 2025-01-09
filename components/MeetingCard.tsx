@@ -35,7 +35,7 @@ export function MeetingCard({
   handleClick,
   link,
   buttonText,
-  meetingId // Add this prop
+  meetingId 
 }: MeetingCardProps) {
   const { toast } = useToast();
   

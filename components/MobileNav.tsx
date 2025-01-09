@@ -16,7 +16,7 @@ const MobileNav = () => {
       <Sheet>
         <SheetTrigger asChild>
           <Image
-            src="/icons/hamburge/r.svg"
+            src="/icons/hamburger.svg"
             width={36}
             height={36}
             alt="hamburger icon"

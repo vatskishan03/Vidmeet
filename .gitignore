@@ -19,7 +19,8 @@ service-account*.json
 # Transcription files
 /transcriptions/
 *.txt
-
+/uploads
+*.wav
 # Build outputs
 /.next/
 /out/
