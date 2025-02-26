@@ -1,17 +1,17 @@
-"use client";
+'use client'
+
 import Image from "next/image";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 interface MeetingCardProps {
   icon: string;
@@ -23,7 +23,6 @@ interface MeetingCardProps {
   handleClick: () => void;
   link: string;
   meetingId: string;
-
 }
 
 export function MeetingCard({
@@ -35,10 +34,10 @@ export function MeetingCard({
   handleClick,
   link,
   buttonText,
-  meetingId 
+  meetingId,
 }: MeetingCardProps) {
   const { toast } = useToast();
-  
+
   const getMeetingSummary = async (id: string) => {
     if (!id) {
       toast({
@@ -48,11 +47,14 @@ export function MeetingCard({
       });
       return;
     }
-  
+
     try {
-      const response = await fetch(`/api/summary/${id}`);
+      // Fetch from your NestJS backend instead of the old Next.js route
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/summary/${id}`
+      );
       const data = await response.json();
-      
+
       if (response.status === 404) {
         toast({
           title: "No Transcription Found",
@@ -61,25 +63,26 @@ export function MeetingCard({
         });
         return;
       }
-  
+
       if (!response.ok) {
         throw new Error(data.error);
       }
-  
+
+      // Convert summary into bullet points
       const bulletPoints = data.summary
-        .split('.')
+        .split(".")
         .filter((point: string) => point.trim())
         .map((point: string) => `• ${point.trim()}`)
-        .join('\n');
-  
+        .join("\n");
+
       toast({
         title: "Meeting Summary",
         description: bulletPoints,
         duration: 10000,
       });
-  
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to get meeting summary';
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to get meeting summary";
       toast({
         title: "Error",
         description: errorMessage,
@@ -87,9 +90,10 @@ export function MeetingCard({
       });
     }
   };
+
   return (
     <section className="relative flex min-h-[258px] w-full flex-col justify-between rounded-[14px] bg-dark-1 px-5 py-8 xl:max-w-[568px]">
-      {/* Three-dot menu for previous meetings */}
+      {/* Three-dot menu for past meetings */}
       {isPreviousMeeting && (
         <div className="absolute top-2 right-2">
           <DropdownMenu>
@@ -110,7 +114,7 @@ export function MeetingCard({
       )}
 
       <article className="flex flex-col gap-5">
-        <Image src={icon} alt="upcoming" width={28} height={28} />
+        <Image src={icon} alt="meeting-icon" width={28} height={28} />
         <div className="flex justify-between">
           <div className="flex flex-col gap-2">
             <h1 className="text-2xl font-bold">{title}</h1>
@@ -130,9 +134,7 @@ export function MeetingCard({
           <Button
             onClick={() => {
               navigator.clipboard.writeText(link);
-              toast({
-                title: "Link Copied",
-              });
+              toast({ title: "Link Copied" });
             }}
             className="bg-dark-4 px-6"
           >

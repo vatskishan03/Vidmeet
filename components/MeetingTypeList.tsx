@@ -1,13 +1,11 @@
-/* eslint-disable camelcase */
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
+import { useUser } from '@auth0/nextjs-auth0/client';
 import HomeCard from './HomeCard';
 import MeetingModal from './MeetingModal';
 import { Call, useStreamVideoClient } from '@stream-io/video-react-sdk';
-import { useUser } from '@clerk/nextjs';
 import Loader from './Loader';
 import { Textarea } from './ui/textarea';
 import ReactDatePicker from 'react-datepicker';

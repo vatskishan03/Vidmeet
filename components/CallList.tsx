@@ -1,5 +1,4 @@
 'use client';
-
 import { Call, CallRecording } from '@stream-io/video-react-sdk';
 import Loader from './Loader';
 import { useGetCalls } from '@/hooks/useGetCalls';
@@ -7,6 +6,7 @@ import MeetingCard from './MeetingCard';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+const isCall = (meeting: Call | CallRecording): meeting is Call => 'id' in meeting;
 const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings' }) => {
   const router = useRouter();
   const { endedCalls, upcomingCalls, callRecordings, isLoading } =
