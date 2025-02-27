@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AuthProvider } from '@/providers/auth-provider';
-import{StreamVideoProvider} from '@/providers/stream-video-provider';
+import StreamVideoProvider from '@/providers/StreamClientProvider';
 import "@stream-io/video-react-sdk/dist/css/styles.css";
 import "react-datepicker/dist/react-datepicker.css";
 import "./globals.css";
