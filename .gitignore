@@ -4,6 +4,12 @@
 .pnp.js
 .yarn/install-state.gz
 
+
+# GitHub Copilot files
+
+.copilot/
+.copilot/instructions.json
+
 # Environment variables
 .env
 .env.*
