@@ -48,3 +48,6 @@ record({
     console.error('Recording error:', err);
   })
   .pipe(recognizeStream);
+
+
+  //This is a startup-grade full-stack project, I want to build an AI-Powered video conferencing application, the application will support the features which are there in current conventional video conferencing applications like Zoom, Google Meet, etc. but with some additional features like AI-Powered background removal, AI-Powered noise cancellation, AI-Powered video enhancement, AI-Powered virtual avatars, AI-Powered meeting summaries, AI-Powered meeting notes, AI-Powered meeting transcription, AI-Powered meeting highlights, AI-Powered meeting action items, AI-Powered meeting follow-ups, AI-Powered meeting reminders, AI-Powered meeting scheduling, AI-Powered meeting analytics.

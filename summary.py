@@ -34,3 +34,4 @@ with open("transcription.txt", "r") as file:
     transcription = file.read()
 
 print(summarize_text(transcription))
+
