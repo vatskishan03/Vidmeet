@@ -11,88 +11,74 @@ export class TranscriptionService {
   
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('deepgramApiKey');
-    
-    if (!apiKey) {
-      throw new Error('Deepgram API key is missing');
-    }
-    
+    if (!apiKey) throw new Error('Deepgram API key is missing');
     this.deepgram = new Deepgram(apiKey);
   }
   
-  async transcribeAudio(audioBuffer: Buffer, meetingId: string, participants: string[] = []): Promise<boolean> {
+  async transcribeAudio(
+    audioBuffer: Buffer,
+    meetingId: string,
+    participants: string[] = [],
+  ): Promise<boolean> {
     try {
       this.logger.log(`Starting transcription for meeting ${meetingId}`);
       
-      // Send audio to Deepgram
-      const response = await this.deepgram.transcription.preRecorded({
-        buffer: audioBuffer,
-        mimetype: 'audio/wav',
-      }, {
-        punctuate: true,
-        diarize: true, // Enable speaker diarization
-        utterances: true,
-        model: 'nova-2',
-        language: 'en-US',
-      });
-      
-      // Extract speakers, timestamps and transcriptions
-      let transcript = '';
-      let speakerMap: Record<string, string> = {};
-      
-      if (response.results?.channels?.[0]?.alternatives?.[0]?.paragraphs) {
-        const paragraphs = response.results.channels[0].alternatives[0].paragraphs;
-        
-        // Map speaker labels to participant names if available
-        paragraphs.paragraphs.forEach((paragraph) => {
-          const speakerId = paragraph.speaker;
-          
-          // Assign participant names to speakers when possible
-          if (participants.length > 0 && !speakerMap[speakerId] && 
-              Object.keys(speakerMap).length < participants.length) {
-            const nextAvailableParticipant = participants.find(
-              p => !Object.values(speakerMap).includes(p)
-            );
-            if (nextAvailableParticipant) {
-              speakerMap[speakerId] = nextAvailableParticipant;
-            }
-          }
-          
-          const speakerName = speakerMap[speakerId] || `Speaker ${speakerId}`;
-          const formattedStart = this.formatTimestamp(paragraph.start);
-          
-          transcript += `[${formattedStart}] ${speakerName}: ${paragraph.text}\n\n`;
-        });
-      }
-      
-      // Ensure transcriptions directory exists
-      const transcriptionsDir = path.join(process.cwd(), 'transcriptions');
-      await fs.mkdir(transcriptionsDir, { recursive: true });
-      
-      // Save the full transcript with speaker information
-      await fs.writeFile(
-        path.join(transcriptionsDir, `${meetingId}.txt`),
-        transcript
+      // Use Deepgram preRecorded transcription API
+      const response = await this.deepgram.transcription.preRecorded(
+        { buffer: audioBuffer, mimetype: 'audio/wav' },
+        {
+          punctuate: true,
+          diarize: true,
+          utterances: true,
+          model: 'nova-2',
+          language: 'en-US',
+        },
       );
       
-      // Save speaker mapping separately for future reference
+      let transcript = '';
+      const speakerMap: Record<string, string> = {};
+      
+      if (response.results?.utterances) {
+        for (const u of response.results.utterances) {
+          const speakerId = u.speaker;
+          if (
+            participants.length > 0 &&
+            !speakerMap[speakerId] &&
+            Object.keys(speakerMap).length < participants.length
+          ) {
+            const nextName = participants.find(
+              (p) => !Object.values(speakerMap).includes(p),
+            );
+            if (nextName) speakerMap[speakerId] = nextName;
+          }
+          const name = speakerMap[speakerId] || `Speaker ${speakerId}`;
+          const time = this.formatTimestamp(u.start);
+          transcript += `[${time}] ${name}: ${u.transcript}\n\n`;
+        }
+      }
+      
+      const dir = path.join(process.cwd(), 'transcriptions');
+      await fs.mkdir(dir, { recursive: true });
+      
+      await fs.writeFile(path.join(dir, `${meetingId}.txt`), transcript);
       await fs.writeFile(
-        path.join(transcriptionsDir, `${meetingId}-speakers.json`),
-        JSON.stringify(speakerMap, null, 2)
+        path.join(dir, `${meetingId}-speakers.json`),
+        JSON.stringify(speakerMap, null, 2),
       );
       
       this.logger.log(`Transcription completed for meeting ${meetingId}`);
       return true;
-    } catch (error) {
-      this.logger.error(`Transcription error: ${error.message}`, error.stack);
+    } catch (err: any) {
+      this.logger.error(`Transcription error: ${err.message}`, err.stack);
       return false;
     }
   }
   
-  private formatTimestamp(seconds: number): string {
-    const date = new Date(seconds * 1000);
-    const hours = date.getUTCHours().toString().padStart(2, '0');
-    const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-    const secs = date.getUTCSeconds().toString().padStart(2, '0');
-    return `${hours}:${minutes}:${secs}`;
+  private formatTimestamp(sec: number): string {
+    const d = new Date(sec * 1000);
+    const hh = d.getUTCHours().toString().padStart(2, '0');
+    const mm = d.getUTCMinutes().toString().padStart(2, '0');
+    const ss = d.getUTCSeconds().toString().padStart(2, '0');
+    return `${hh}:${mm}:${ss}`;
   }
 }
