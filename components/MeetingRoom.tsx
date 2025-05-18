@@ -166,12 +166,23 @@ const MeetingRoom = () => {
         mediaRecorder.onstop = async () => {
           // Combine chunks into a single WAV blob
           const audioBlob = new Blob(chunks, { type: 'audio/wav' });
-          const formData = new FormData();
+          chunks = [];
 
+          const formData = new FormData();
           formData.append('audio', audioBlob);
           formData.append('meetingId', call.id);
 
-          await fetch('/api/transcribe', {
+          // Get participant names for speaker mapping
+          if (call.state.participants) {
+            const participantNames = Object.values(call.state.participants)
+              .map((p) => p.user?.name || p.user?.id)
+              .filter(Boolean);
+
+            formData.append('participants', JSON.stringify(participantNames));
+          }
+
+          // Update to use the NestJS endpoint
+          await fetch('http://localhost:3001/transcribe', {
             method: 'POST',
             body: formData,
           });
