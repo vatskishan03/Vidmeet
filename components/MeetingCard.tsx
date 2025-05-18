@@ -39,6 +39,7 @@ export function MeetingCard({
 }: MeetingCardProps) {
   const { toast } = useToast();
   
+  // This updates the getMeetingSummary function to use the NestJS endpoint
   const getMeetingSummary = async (id: string) => {
     if (!id) {
       toast({
@@ -48,9 +49,10 @@ export function MeetingCard({
       });
       return;
     }
-  
+
     try {
-      const response = await fetch(`/api/summary/${id}`);
+      // Update to use the NestJS backend
+      const response = await fetch(`http://localhost:3001/summary/${id}`);
       const data = await response.json();
       
       if (response.status === 404) {
@@ -61,30 +63,24 @@ export function MeetingCard({
         });
         return;
       }
-  
+
       if (!response.ok) {
         throw new Error(data.error);
       }
-  
+
       const bulletPoints = data.summary
         .split('.')
         .filter((point: string) => point.trim())
-        .map((point: string) => `• ${point.trim()}`)
-        .join('\n');
-  
-      toast({
-        title: "Meeting Summary",
-        description: bulletPoints,
-        duration: 10000,
-      });
-  
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to get meeting summary';
+        .map((point: string) => point.trim());
+      
+      // Display the summary in a modal or component
+    } catch (error) {
       toast({
         title: "Error",
-        description: errorMessage,
+        description: "Failed to generate summary",
         variant: "destructive",
       });
+      console.error('Summary error:', error);
     }
   };
   return (
