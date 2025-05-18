@@ -182,7 +182,7 @@ const MeetingRoom = () => {
           }
 
           // Update to use the NestJS endpoint
-          await fetch('http://localhost:3001/transcribe', {
+          fetch('http://localhost:3001/transcribe', {
             method: 'POST',
             body: formData,
           });

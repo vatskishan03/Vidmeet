@@ -51,7 +51,7 @@ export function MeetingCard({
     }
 
     try {
-      // Update to use the NestJS backend
+      
       const response = await fetch(`http://localhost:3001/summary/${id}`);
       const data = await response.json();
       
