@@ -4,6 +4,6 @@ export default () => ({
   streamApiSecret: process.env.STREAM_SECRET_KEY,
   clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   clerkSecretKey: process.env.CLERK_SECRET_KEY,
-  googleCloudCredentials: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-  bucketName: process.env.BUCKET_NAME || 'default-bucket'
+  deepgramApiKey: process.env.DEEPGRAM_API_KEY,
+  openaiApiKey: process.env.OPENAI_API_KEY,
 });
