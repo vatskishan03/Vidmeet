@@ -23,7 +23,7 @@ export class TranscriptionService {
     try {
       this.logger.log(`Starting transcription for meeting ${meetingId}`);
 
-      // Transcribe audio 
+      // Transcribe audio
       const response = await this.deepgram.listen.prerecorded.transcribeFile(
         audioBuffer,
         {
@@ -35,27 +35,29 @@ export class TranscriptionService {
         },
       );
 
+      // Safely access utterances
+      const utterances =
+        response.results?.channels?.[0]?.alternatives?.[0]?.utterances || [];
+
       let transcript = '';
       const speakerMap: Record<string, string> = {};
 
       // Process utterances and map speakers to participant names
-      if (response.result?.utterances) {
-        for (const utterance of response.result.utterances) {
-          const speakerId = utterance.speaker;
-          if (
-            participants.length > 0 &&
-            !speakerMap[speakerId] &&
-            Object.keys(speakerMap).length < participants.length
-          ) {
-            const nextName = participants.find(
-              (p) => !Object.values(speakerMap).includes(p),
-            );
-            if (nextName) speakerMap[speakerId] = nextName;
-          }
-          const name = speakerMap[speakerId] || `Speaker ${speakerId}`;
-          const time = this.formatTimestamp(utterance.start);
-          transcript += `[${time}] ${name}: ${utterance.transcript}\n\n`;
+      for (const utterance of utterances) {
+        const speakerId = utterance.speaker;
+        if (
+          participants.length > 0 &&
+          !speakerMap[speakerId] &&
+          Object.keys(speakerMap).length < participants.length
+        ) {
+          const nextName = participants.find(
+            (p) => !Object.values(speakerMap).includes(p),
+          );
+          if (nextName) speakerMap[speakerId] = nextName;
         }
+        const name = speakerMap[speakerId] || `Speaker ${speakerId}`;
+        const time = this.formatTimestamp(utterance.start);
+        transcript += `[${time}] ${name}: ${utterance.transcript}\n\n`;
       }
 
       // Save transcription and speaker map to files
