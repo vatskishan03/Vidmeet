@@ -4,10 +4,13 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
+  // Allow your Next.js frontend to hit /transcribe
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: 'http://localhost:3000',
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
   });
   
   const configService = app.get(ConfigService);

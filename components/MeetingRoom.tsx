@@ -181,11 +181,20 @@ const MeetingRoom = () => {
             formData.append('participants', JSON.stringify(participantNames));
           }
 
-          // Update to use the NestJS endpoint
-          fetch('http://localhost:3001/transcribe', {
-            method: 'POST',
-            body: formData,
-          });
+          console.log('⏺️ onstop fired, sending audio for', call.id);
+          try {
+            const response = await fetch('http://localhost:3001/transcribe', {
+              method: 'POST',
+              body: formData,
+            });
+            console.log('Transcribe POST status:', response.status);
+            if (!response.ok) {
+              const text = await response.text();
+              console.error('Transcription failed:', text);
+            }
+          } catch (err) {
+            console.error('Network error sending transcription:', err);
+          }
         };
 
         // Start recording
