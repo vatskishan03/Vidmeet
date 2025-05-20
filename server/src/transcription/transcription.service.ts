@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createClient, DeepgramClient } from '@deepgram/sdk';
+import { createClient, DeepgramClient, SyncPrerecordedResponse, DeepgramResponse } from '@deepgram/sdk';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -24,7 +24,7 @@ export class TranscriptionService {
       this.logger.log(`Starting transcription for meeting ${meetingId}`);
 
       // Transcribe audio
-      const response = await this.deepgram.listen.prerecorded.transcribeFile(
+      const response: DeepgramResponse<SyncPrerecordedResponse> = await this.deepgram.listen.prerecorded.transcribeFile(
         audioBuffer,
         {
           punctuate: true,
@@ -36,26 +36,33 @@ export class TranscriptionService {
       );
 
       // Safely access utterances
-      const utterances =
-        response.results?.channels?.[0]?.alternatives?.[0]?.utterances || [];
+      // Corrected path: response.result?.results?.utterances
+      const utterances = response.result?.results?.utterances || [];
 
       let transcript = '';
       const speakerMap: Record<string, string> = {};
 
       // Process utterances and map speakers to participant names
       for (const utterance of utterances) {
-        const speakerId = utterance.speaker;
+        const speakerId = utterance.speaker; // speakerId is a number from Deepgram
+        // Ensure speakerId is treated as a string for map keys if necessary,
+        // but Deepgram's Utterance type defines speaker as number.
+        // For consistency in map keys, convert to string if needed, or ensure map handles number keys.
+        // Here, it's used as a key directly, which is fine for Record<string, string> if implicitly converted.
+        // Or, ensure speakerId is consistently string: const speakerKey = String(utterance.speaker);
+
         if (
           participants.length > 0 &&
-          !speakerMap[speakerId] &&
+          speakerId !== undefined && // Check if speakerId is defined
+          !speakerMap[String(speakerId)] && // Use String(speakerId) for map key
           Object.keys(speakerMap).length < participants.length
         ) {
           const nextName = participants.find(
             (p) => !Object.values(speakerMap).includes(p),
           );
-          if (nextName) speakerMap[speakerId] = nextName;
+          if (nextName) speakerMap[String(speakerId)] = nextName;
         }
-        const name = speakerMap[speakerId] || `Speaker ${speakerId}`;
+        const name = speakerId !== undefined ? speakerMap[String(speakerId)] || `Speaker ${speakerId}` : 'Unknown Speaker';
         const time = this.formatTimestamp(utterance.start);
         transcript += `[${time}] ${name}: ${utterance.transcript}\n\n`;
       }
@@ -74,6 +81,10 @@ export class TranscriptionService {
       return true;
     } catch (error: any) {
       this.logger.error(`Transcription error: ${error.message}`, error.stack);
+      // Log the full error object if it's from Deepgram for more details
+      if (error?.error) {
+        this.logger.error(`Deepgram error details: ${JSON.stringify(error.error)}`);
+      }
       return false;
     }
   }
