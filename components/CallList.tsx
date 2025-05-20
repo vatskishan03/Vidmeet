@@ -68,7 +68,7 @@ const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings' }) => {
         calls.map((meeting) => (
           <MeetingCard
             key={(meeting as Call).id}
-            meetingId={(meeting as Call).id} // Make sure this is passed correctly
+            meetingId={(meeting as Call).id}
             icon={type === 'ended' 
               ? '/icons/previous.svg'
               : type === 'upcoming'

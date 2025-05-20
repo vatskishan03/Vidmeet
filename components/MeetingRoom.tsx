@@ -175,7 +175,7 @@ const MeetingRoom = () => {
           // Get participant names for speaker mapping
           if (call.state.participants) {
             const participantNames = Object.values(call.state.participants)
-              .map((p) => p.user?.name || p.user?.id)
+              .map((p) => p.name || p.userId || 'Unknown Participant')
               .filter(Boolean);
 
             formData.append('participants', JSON.stringify(participantNames));
