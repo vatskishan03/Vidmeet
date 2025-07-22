@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^4.13.23",
+    "@clerk/clerk-sdk-node": "^5.1.6",
     "@deepgram/sdk": "^4.1.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
