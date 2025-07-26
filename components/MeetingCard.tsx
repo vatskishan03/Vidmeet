@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -9,7 +8,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
 import { BACKEND_URL } from '@/constants';
@@ -36,11 +34,10 @@ export function MeetingCard({
   handleClick,
   link,
   buttonText,
-  meetingId // Add this prop
+  meetingId 
 }: MeetingCardProps) {
   const { toast } = useToast();
   
-  // This updates the getMeetingSummary function to use the NestJS endpoint
   const getMeetingSummary = async (id: string) => {
     if (!id) {
       toast({
