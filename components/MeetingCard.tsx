@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
+import { BACKEND_URL } from '@/constants';
 
 interface MeetingCardProps {
   icon: string;
@@ -52,7 +53,7 @@ export function MeetingCard({
 
     try {
       
-      const response = await fetch(`http://localhost:3001/summary/${id}`);
+      const response = await fetch(`${BACKEND_URL}/summary/${id}`);
       const data = await response.json();
       
       if (response.status === 404) {

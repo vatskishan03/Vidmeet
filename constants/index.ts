@@ -34,3 +34,6 @@ export const avatarImages = [
   '/images/avatar-4.png',
   '/images/avatar-5.png',
 ];
+
+// Add this for backend URL configuration
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';

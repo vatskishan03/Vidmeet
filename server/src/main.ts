@@ -5,9 +5,13 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Allow your Next.js frontend to hit /transcribe
+  // Allow your Next.js frontend to hit the API
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: [
+      'http://localhost:3000',
+      'https://video-three-sepia.vercel.app/', 
+      process.env.FRONTEND_URL // Add this for flexibility
+    ].filter(Boolean), // Remove undefined values
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
